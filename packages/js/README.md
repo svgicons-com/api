@@ -1,35 +1,39 @@
 # `@svgicons-com/api-client`
 
-Status: alpha package source. It is implemented in this repository, but it has not been published to npm yet.
+Typed JavaScript and TypeScript client for the official svgicons.com Pro API.
 
-This package is a typed TypeScript client for the live official svgicons.com Pro API under `/api/pro`. It uses `fetch`, outputs ESM, and keeps Pro API tokens in caller-controlled code.
+## What Is svgicons.com?
 
-## Install
+[svgicons.com](https://svgicons.com) is an icon platform for searching, organizing, exporting, and integrating open-source SVG icons into developer workflows. It provides website search and browsing, Icon Collections, export workflows, MCP/AI coding workflows, and a token-authenticated Pro REST API.
 
-Install from npm after the package is published:
+This package is the official SDK for that Pro REST API. It talks to the live `/api/pro` API, uses `fetch`, outputs ESM, and includes TypeScript declarations.
 
-```bash
-npm install @svgicons-com/api-client
-```
+## Authentication Required
 
-For local development in this repository, use the workspace package:
+The SDK is for svgicons.com Pro API workflows. A svgicons.com Pro API token key is required for icon search, icon metadata, SVG retrieval, PNG export, Icon Collections, and collection export operations.
 
-```bash
-npm install
-npm run build
-```
-
-## Token Setup
-
-Create a svgicons.com Pro API token from your Svg/icons account and keep it server-side.
+Use `SVGICONS_API_TOKEN` for environment variables and `YOUR_API_TOKEN` as a placeholder in examples:
 
 ```bash
 export SVGICONS_API_TOKEN="YOUR_API_TOKEN"
 ```
 
-The SDK methods for icon search, icon metadata, SVG retrieval, PNG export, Project Kits, and Project Kit exports require a Pro API token. `client.scopes.list()` calls `GET /api/pro/scopes`, which is metadata/discovery for the Pro API scope catalog and does not return icons.
+Keep Pro API tokens server-side. Do not expose them in public browser JavaScript, client-side environment variables, mobile app bundles, logs, screenshots, or public issues.
 
-Do not expose Pro API tokens in public browser bundles. For frontend apps, call this SDK from a server route, backend service, CI job, or internal server-side tool.
+`client.scopes.list()` calls `GET /api/pro/scopes`, which is metadata/discovery for the Pro API scope catalog. It does not return icons and is not a free public icon API.
+
+## Install
+
+```bash
+npm install @svgicons-com/api-client
+```
+
+For local development in the repository, use the workspace package:
+
+```bash
+npm install
+npm run build
+```
 
 ## Quick Start
 

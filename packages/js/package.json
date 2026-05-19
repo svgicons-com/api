@@ -1,6 +1,6 @@
 {
   "name": "@svgicons-com/api-client",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "Typed JavaScript and TypeScript client for the Svg/icons Pro API.",
   "type": "module",
   "license": "MIT",
