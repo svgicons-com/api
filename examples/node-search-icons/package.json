@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-node-search-icons",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Search Svg/icons Pro API icons from a Node.js script.",
+  "scripts": {
+    "search": "npm --prefix ../../packages/js run build && node src/search-icons.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-ai-coding-mcp-workflow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "REST helper and workflow notes for AI coding assistants using Svg/icons.",
+  "scripts": {
+    "search": "npm --prefix ../../packages/js run build && node api-workflow.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

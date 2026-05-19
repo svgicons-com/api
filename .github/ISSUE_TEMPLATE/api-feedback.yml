@@ -1,0 +1,50 @@
+name: API, SDK, or docs feedback
+description: Share feedback about the OpenAPI spec, SDK, examples, recipes, Project Kits, MCP workflow, or documentation.
+title: "[Feedback]: "
+labels:
+  - feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include real API tokens. Use `YOUR_API_TOKEN` or `SVGICONS_API_TOKEN` placeholders only.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - OpenAPI
+        - SDK
+        - Examples
+        - Recipes
+        - Project Kits
+        - MCP workflow
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: missing
+    attributes:
+      label: What is confusing or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior or suggested improvement
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Relevant file or link
+      placeholder: recipes/search-icons.md
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment, if applicable
+      description: Node version, framework, OS, SDK version, or local commit.
+    validations:
+      required: false

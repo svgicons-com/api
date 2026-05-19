@@ -1,0 +1,29 @@
+{
+  "name": "@svgicons-com/api-client",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Typed JavaScript and TypeScript client for the Svg/icons Pro API.",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"const fs=require('node:fs'); fs.rmSync('dist', { recursive: true, force: true });\"",
+    "test": "npm run build && node --test test/client.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

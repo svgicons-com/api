@@ -1,0 +1,13 @@
+{
+  "formats": [
+    "react-ts",
+    "vue",
+    "license-manifest"
+  ],
+  "options": {
+    "colorPolicy": "currentColor",
+    "namingPolicy": "pascal",
+    "typescript": true,
+    "defaultSize": 24
+  }
+}

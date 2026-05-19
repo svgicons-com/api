@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-ci-license-audit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generate an icon provenance report in CI from Svg/icons Pro API metadata.",
+  "scripts": {
+    "report": "npm --prefix ../../packages/js run build && node src/generate-report.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "output": {
+    "markdown": "output/THIRD_PARTY_ICONS.md",
+    "json": "output/third-party-icons.json"
+  },
+  "icons": [
+    33716
+  ]
+}

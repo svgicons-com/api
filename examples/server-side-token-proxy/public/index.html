@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Svg/icons Token Proxy Example</title>
+    <style>
+      body {
+        color: #172033;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        margin: 0;
+        padding: 32px;
+      }
+
+      form {
+        display: flex;
+        gap: 8px;
+        max-width: 520px;
+      }
+
+      input {
+        flex: 1;
+        font: inherit;
+        padding: 10px 12px;
+      }
+
+      button {
+        font: inherit;
+        padding: 10px 14px;
+      }
+
+      ul {
+        display: grid;
+        gap: 10px;
+        list-style: none;
+        margin: 24px 0 0;
+        max-width: 760px;
+        padding: 0;
+      }
+
+      li {
+        border: 1px solid #d8dee9;
+        border-radius: 6px;
+        padding: 12px;
+      }
+
+      .meta {
+        color: #526070;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Icon Search Proxy</h1>
+      <form id="search-form">
+        <label>
+          <span>Search icons</span>
+          <input id="query" name="q" value="arrow" autocomplete="off" />
+        </label>
+        <button type="submit">Search</button>
+      </form>
+      <ul id="results" aria-live="polite"></ul>
+    </main>
+    <script>
+      const form = document.querySelector("#search-form");
+      const input = document.querySelector("#query");
+      const results = document.querySelector("#results");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        results.textContent = "Searching...";
+
+        const response = await fetch(`/api/icons/search?q=${encodeURIComponent(input.value)}&limit=12`);
+        const payload = await response.json();
+
+        if (!response.ok) {
+          results.textContent = payload.message || "Search failed.";
+          return;
+        }
+
+        results.replaceChildren(
+          ...payload.data.map((icon) => {
+            const item = document.createElement("li");
+            const title = document.createElement("strong");
+            const meta = document.createElement("div");
+
+            title.textContent = `${icon.name} [${icon.id}]`;
+            meta.className = "meta";
+            meta.textContent = icon.iconSet
+              ? `${icon.iconSet.name} (${icon.iconSet.prefix}) - ${icon.iconSet.license || "Unknown license"}`
+              : "Unknown icon set";
+
+            item.append(title, meta);
+            return item;
+          }),
+        );
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "data": {
+    "id": 123,
+    "name": "Dashboard icons",
+    "slug": "dashboard-icons",
+    "description": "Icons used by the dashboard UI.",
+    "framework": "react-ts",
+    "colorPolicy": "currentColor",
+    "namingPolicy": "pascal",
+    "iconsCount": 3,
+    "showUrl": "https://svgicons.com/project-kits/123",
+    "updatedAt": "2026-05-10T12:00:00+00:00",
+    "createdAt": "2026-05-10T11:45:00+00:00"
+  }
+}

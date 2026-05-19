@@ -1,0 +1,13 @@
+{
+  "iconName": "arrow-circle-up-fill",
+  "sizes": [
+    512
+  ],
+  "densities": [
+    1
+  ],
+  "backgroundType": "transparent",
+  "iconColorMode": "preserve",
+  "padding": 48,
+  "fit": "contain"
+}

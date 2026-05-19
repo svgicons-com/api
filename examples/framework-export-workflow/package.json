@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-framework-export-workflow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prepare an Icon Collection for framework export workflows with Svg/icons Pro API and CLI.",
+  "scripts": {
+    "prepare:export": "npm --prefix ../../packages/js run build && node src/prepare-export.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

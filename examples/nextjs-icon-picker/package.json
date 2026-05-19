@@ -1,0 +1,27 @@
+{
+  "name": "svgicons-example-nextjs-icon-picker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal Next.js icon picker that keeps Svg/icons Pro API tokens server-side.",
+  "scripts": {
+    "dev": "npm --prefix ../../packages/js run build && next dev",
+    "build": "npm --prefix ../../packages/js run build && next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@svgicons-com/api-client": "file:../../packages/js",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

@@ -1,0 +1,2112 @@
+openapi: "3.1.0"
+info:
+  title: "Svg/icons Pro API"
+  summary: "Authenticated Pro API for icon search, icon reads, Icon Collections, exports, and PNG rendering."
+  version: "2026-05-10"
+  description: "The Svg/icons Pro API uses scoped Sanctum personal access tokens created from a Pro account. Public browsing and website search remain available outside this API.\n\nThis YAML file is the public API-repo version of the website source OpenAPI file at `public/openapi/pro-api.json`. It documents the live `/api/pro` REST API only."
+servers:
+  -
+    url: "https://svgicons.com"
+    description: "Production"
+tags:
+  -
+    name: "Auth / Account"
+    description: "Scope discovery and authenticated token/account inspection."
+  -
+    name: "Search"
+    description: "Authenticated icon metadata search."
+  -
+    name: "Icons"
+    description: "Icon metadata, SVG payloads, and single-icon PNG export."
+  -
+    name: "Project Kits"
+    description: "Icon Collection workflows. The current REST path uses the historical project-kits segment."
+  -
+    name: "Exports"
+    description: "Queued Icon Collection ZIP exports."
+x-pro-api-scopes:
+  - "search:read"
+  - "icons:read"
+  - "collections:read"
+  - "collections:write"
+  - "exports:create"
+  - "mcp:use"
+paths:
+  "/api/pro/scopes":
+    get:
+      tags:
+        - "Auth / Account"
+      summary: "List Pro API token scopes"
+      operationId: "listProApiScopes"
+      security: []
+      responses:
+        "200":
+          description: "Scope catalog."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ScopeListResponse"
+              examples:
+                scopes:
+                  value:
+                    data:
+                      -
+                        value: "search:read"
+                        label: "Search"
+                        description: "Search icons and icon sets through Pro API clients."
+      description: "Returns the current Pro API scope catalog. This public endpoint is useful before creating a token or configuring an integration."
+  "/api/pro/me":
+    get:
+      tags:
+        - "Auth / Account"
+      summary: "Inspect the current Pro API token"
+      operationId: "getProApiMe"
+      security:
+        -
+          bearerAuth: []
+      responses:
+        "200":
+          description: "Current user, access summary, token metadata, and available scopes."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/MeResponse"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+      description: "Returns the authenticated user, account access summary, current token metadata, and scope catalog for the bearer token."
+  "/api/pro/search":
+    get:
+      tags:
+        - "Search"
+      summary: "Search public icon metadata"
+      operationId: "searchProIcons"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "search:read"
+      parameters:
+        -
+          name: "q"
+          in: "query"
+          description: "Search query. Takes precedence over query when both are supplied."
+          schema:
+            type: "string"
+            maxLength: 100
+            example: "arrow left"
+        -
+          name: "query"
+          in: "query"
+          description: "Alternative search query parameter."
+          schema:
+            type: "string"
+            maxLength: 100
+        -
+          name: "category"
+          in: "query"
+          description: "Optional icon set category filter. New means icon sets created in the last three months."
+          schema:
+            type: "string"
+            maxLength: 80
+            example: "Interface"
+        -
+          name: "iconSetPrefix"
+          in: "query"
+          description: "Optional icon set prefix filter."
+          schema:
+            type: "string"
+            maxLength: 140
+            example: "lucide"
+        -
+          name: "limit"
+          in: "query"
+          description: "Maximum number of icons to return."
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 20
+        -
+          name: "offset"
+          in: "query"
+          description: "Zero-based result offset. Takes precedence over page."
+          schema:
+            type: "integer"
+            minimum: 0
+            default: 0
+        -
+          name: "page"
+          in: "query"
+          description: "One-based page number used when offset is omitted."
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 10000
+            default: 1
+      responses:
+        "200":
+          description: "Icon search results."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/IconSearchResponse"
+              examples:
+                search:
+                  value:
+                    data:
+                      -
+                        id: 33716
+                        name: "arrow-circle-up-fill"
+                        slug: "arrow-circle-up-fill"
+                        label: "Arrow Circle Up Fill"
+                        description: null
+                        category: "Interface"
+                        width: 24
+                        height: 24
+                        viewBox: "0 0 24 24"
+                        pageUrl: "https://svgicons.com/icon/33716/arrow-circle-up-fill"
+                        svgUrl: "https://svgicons.com/img/33716/arrow-circle-up-fill.svg"
+                        iconSet:
+                          id: 10
+                          name: "Pro REST Icons"
+                          prefix: "pro-rest-icons"
+                          description: "Example icon set used by Pro REST API tests."
+                          total: 120
+                          author: "Svg/icons"
+                          authorUrl: null
+                          license: "MIT"
+                          licenseUrl: "https://opensource.org/licenses/MIT"
+                          spdx: "MIT"
+                          category: "Interface"
+                          statusBadge: null
+                          pageUrl: "https://svgicons.com/icon-set/pro-rest-icons"
+                    meta:
+                      query: "arrow"
+                      category: null
+                      iconSetPrefix: null
+                      limit: 20
+                      offset: 0
+                      page: 1
+                      nextOffset: 1
+                      hasMore: false
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Searches icon metadata for the authenticated Pro API token. Results include icon set, license, source URL, and SVG URL metadata, but not raw SVG markup."
+  "/api/pro/icons/{icon}":
+    get:
+      tags:
+        - "Icons"
+      summary: "Get icon metadata"
+      operationId: "getProIcon"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "icons:read"
+      parameters:
+        -
+          "$ref": "#/components/parameters/IconId"
+      responses:
+        "200":
+          description: "Icon metadata without raw SVG body."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/IconResponse"
+              examples:
+                icon:
+                  value:
+                    data:
+                      id: 33716
+                      name: "arrow-circle-up-fill"
+                      slug: "arrow-circle-up-fill"
+                      label: "Arrow Circle Up Fill"
+                      description: null
+                      category: "Interface"
+                      width: 24
+                      height: 24
+                      viewBox: "0 0 24 24"
+                      pageUrl: "https://svgicons.com/icon/33716/arrow-circle-up-fill"
+                      svgUrl: "https://svgicons.com/img/33716/arrow-circle-up-fill.svg"
+                      iconSet:
+                        id: 10
+                        name: "Pro REST Icons"
+                        prefix: "pro-rest-icons"
+                        description: "Example icon set used by Pro REST API tests."
+                        total: 120
+                        author: "Svg/icons"
+                        authorUrl: null
+                        license: "MIT"
+                        licenseUrl: "https://opensource.org/licenses/MIT"
+                        spdx: "MIT"
+                        category: "Interface"
+                        statusBadge: null
+                        pageUrl: "https://svgicons.com/icon-set/pro-rest-icons"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Returns one icon's public metadata, including icon set, license, provenance URLs, dimensions, and public page/SVG URLs."
+  "/api/pro/icons/{icon}/svg":
+    get:
+      tags:
+        - "Icons"
+      summary: "Get icon metadata and SVG payload"
+      operationId: "getProIconSvg"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "icons:read"
+      parameters:
+        -
+          "$ref": "#/components/parameters/IconId"
+      responses:
+        "200":
+          description: "Icon metadata with SVG source body and wrapped SVG document."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/IconSvgResponse"
+              examples:
+                svg:
+                  value:
+                    data:
+                      id: 33716
+                      name: "arrow-circle-up-fill"
+                      slug: "arrow-circle-up-fill"
+                      label: "Arrow Circle Up Fill"
+                      description: null
+                      category: "Interface"
+                      width: 24
+                      height: 24
+                      viewBox: "0 0 24 24"
+                      pageUrl: "https://svgicons.com/icon/33716/arrow-circle-up-fill"
+                      svgUrl: "https://svgicons.com/img/33716/arrow-circle-up-fill.svg"
+                      iconSet:
+                        id: 10
+                        name: "Pro REST Icons"
+                        prefix: "pro-rest-icons"
+                        description: "Example icon set used by Pro REST API tests."
+                        total: 120
+                        author: "Svg/icons"
+                        authorUrl: null
+                        license: "MIT"
+                        licenseUrl: "https://opensource.org/licenses/MIT"
+                        spdx: "MIT"
+                        category: "Interface"
+                        statusBadge: null
+                        pageUrl: "https://svgicons.com/icon-set/pro-rest-icons"
+                      body: "<path d=\"M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z\"/>"
+                      svg: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\"><path d=\"M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z\"/></svg>"
+                      contentType: "image/svg+xml"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Returns one icon's metadata plus the stored SVG body and a wrapped SVG document string."
+  "/api/pro/icons/{icon}/png-export":
+    post:
+      tags:
+        - "Icons"
+      summary: "Export one icon as PNG or ZIP"
+      operationId: "exportProIconPng"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "icons:read"
+        - "exports:create"
+      parameters:
+        -
+          "$ref": "#/components/parameters/IconId"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/PngExportRequest"
+            examples:
+              png:
+                value:
+                  iconName: "arrow-circle-up-fill"
+                  sizes:
+                    - 512
+                  densities:
+                    - 1
+                  backgroundType: "transparent"
+                  iconColorMode: "preserve"
+                  padding: 48
+                  fit: "contain"
+      responses:
+        "200":
+          description: "PNG bytes or ZIP bytes. The response Content-Type is image/png or application/zip."
+          content:
+            "image/png":
+              schema:
+                "$ref": "#/components/schemas/PngExportResponse"
+            "application/zip":
+              schema:
+                "$ref": "#/components/schemas/PngExportResponse"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Renders one icon to a binary PNG response or a ZIP when multiple sizes, densities, or zip output are requested."
+  "/api/pro/project-kits":
+    get:
+      tags:
+        - "Project Kits"
+      summary: "List Icon Collections"
+      operationId: "listProProjectKits"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:read"
+      responses:
+        "200":
+          description: "Collection summaries and option values."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ProjectKitListResponse"
+              examples:
+                projectKits:
+                  value:
+                    data:
+                      -
+                        id: 123
+                        name: "Dashboard icons"
+                        slug: "dashboard-icons"
+                        description: "Icons used by the dashboard UI."
+                        framework: "react-ts"
+                        colorPolicy: "currentColor"
+                        namingPolicy: "pascal"
+                        iconsCount: 3
+                        showUrl: "https://svgicons.com/project-kits/123"
+                        updatedAt: "2026-05-10T12:00:00+00:00"
+                        createdAt: "2026-05-10T11:45:00+00:00"
+                    meta:
+                      options:
+                        frameworks:
+                          - "svg"
+                          - "react-ts"
+                          - "vue"
+                          - "sprite"
+                        colorPolicies:
+                          - "currentColor"
+                          - "preserve"
+                          - "strip"
+                        namingPolicies:
+                          - "kebab"
+                          - "pascal"
+                          - "camel"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+      description: "Lists the authenticated user's Icon Collections. The live REST route keeps the historical project-kits path segment."
+    post:
+      tags:
+        - "Project Kits"
+      summary: "Create an Icon Collection"
+      operationId: "createProProjectKit"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/ProjectKitWriteRequest"
+            examples:
+              createProjectKit:
+                value:
+                  name: "Dashboard icons"
+                  description: "Icons used by the dashboard UI."
+                  framework: "react-ts"
+                  colorPolicy: "currentColor"
+                  namingPolicy: "pascal"
+      responses:
+        "201":
+          description: "Created collection summary."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ProjectKitSummaryResponse"
+              examples:
+                projectKit:
+                  value:
+                    data:
+                      id: 123
+                      name: "Dashboard icons"
+                      slug: "dashboard-icons"
+                      description: "Icons used by the dashboard UI."
+                      framework: "react-ts"
+                      colorPolicy: "currentColor"
+                      namingPolicy: "pascal"
+                      iconsCount: 3
+                      showUrl: "https://svgicons.com/project-kits/123"
+                      updatedAt: "2026-05-10T12:00:00+00:00"
+                      createdAt: "2026-05-10T11:45:00+00:00"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Creates an Icon Collection for the authenticated user."
+  "/api/pro/project-kits/{projectKit}":
+    get:
+      tags:
+        - "Project Kits"
+      summary: "Get one Icon Collection"
+      operationId: "getProProjectKit"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:read"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+        -
+          name: "per_page"
+          in: "query"
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 100
+      responses:
+        "200":
+          description: "Collection detail and paginated icons."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ProjectKitDetailResponse"
+              examples:
+                projectKit:
+                  value:
+                    data:
+                      id: 123
+                      name: "Dashboard icons"
+                      slug: "dashboard-icons"
+                      description: "Icons used by the dashboard UI."
+                      framework: "react-ts"
+                      colorPolicy: "currentColor"
+                      namingPolicy: "pascal"
+                      iconsCount: 3
+                      showUrl: "https://svgicons.com/project-kits/123"
+                      updatedAt: "2026-05-10T12:00:00+00:00"
+                      createdAt: "2026-05-10T11:45:00+00:00"
+                      licenseSummary:
+                        -
+                          license: "MIT"
+                          count: 3
+                          sets:
+                            -
+                              name: "Pro REST Icons"
+                              prefix: "pro-rest-icons"
+                              licenseUrl: "https://opensource.org/licenses/MIT"
+                      iconSetSummary:
+                        -
+                          name: "Pro REST Icons"
+                          prefix: "pro-rest-icons"
+                          count: 3
+                    icons:
+                      data:
+                        -
+                          id: 33716
+                          icon_set_id: 10
+                          name: "arrow-circle-up-fill"
+                          width: 24
+                          height: 24
+                          body: "<path d=\"M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z\"/>"
+                          iconSet:
+                            id: 10
+                            name: "Pro REST Icons"
+                            prefix: "pro-rest-icons"
+                            license: "MIT"
+                            licenseUrl: "https://opensource.org/licenses/MIT"
+                      current_page: 1
+                      first_page_url: "https://svgicons.com/api/pro/project-kits/123?page=1"
+                      from: 1
+                      last_page: 1
+                      last_page_url: "https://svgicons.com/api/pro/project-kits/123?page=1"
+                      links:
+                        -
+                          url: null
+                          label: "&laquo; Previous"
+                          active: false
+                        -
+                          url: "https://svgicons.com/api/pro/project-kits/123?page=1"
+                          label: "1"
+                          active: true
+                        -
+                          url: null
+                          label: "Next &raquo;"
+                          active: false
+                      next_page_url: null
+                      path: "https://svgicons.com/api/pro/project-kits/123"
+                      per_page: 100
+                      prev_page_url: null
+                      to: 1
+                      total: 1
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Returns one Icon Collection, license and icon-set summaries, and a paginated list of icons in the collection."
+    patch:
+      tags:
+        - "Project Kits"
+      summary: "Update one Icon Collection"
+      operationId: "updateProProjectKit"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/ProjectKitWriteRequest"
+            examples:
+              updateProjectKit:
+                value:
+                  name: "Dashboard icons"
+                  colorPolicy: "currentColor"
+                  namingPolicy: "pascal"
+      responses:
+        "200":
+          description: "Updated collection summary."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ProjectKitSummaryResponse"
+              examples:
+                projectKit:
+                  value:
+                    data:
+                      id: 123
+                      name: "Dashboard icons"
+                      slug: "dashboard-icons"
+                      description: "Icons used by the dashboard UI."
+                      framework: "react-ts"
+                      colorPolicy: "currentColor"
+                      namingPolicy: "pascal"
+                      iconsCount: 3
+                      showUrl: "https://svgicons.com/project-kits/123"
+                      updatedAt: "2026-05-10T12:00:00+00:00"
+                      createdAt: "2026-05-10T11:45:00+00:00"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Updates an Icon Collection's name, description, framework, color policy, or naming policy."
+    delete:
+      tags:
+        - "Project Kits"
+      summary: "Delete one Icon Collection"
+      operationId: "deleteProProjectKit"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+      responses:
+        "204":
+          description: "Deleted."
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Deletes an Icon Collection and its related collection export artifacts."
+  "/api/pro/project-kits/{projectKit}/icons":
+    post:
+      tags:
+        - "Project Kits"
+      summary: "Add one icon to an Icon Collection"
+      operationId: "addProProjectKitIcon"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/AddIconRequest"
+            examples:
+              addIcon:
+                value:
+                  icon_id: 33716
+      responses:
+        "200":
+          description: "Icon already existed in the collection."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/AddIconResponse"
+        "201":
+          description: "Icon added to the collection."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/AddIconResponse"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Adds one icon to an Icon Collection by icon id. The response tells whether a new collection entry was created."
+  "/api/pro/project-kits/{projectKit}/icons/bulk":
+    post:
+      tags:
+        - "Project Kits"
+      summary: "Add multiple icons to an Icon Collection"
+      operationId: "bulkAddProProjectKitIcons"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/BulkAddIconsRequest"
+            examples:
+              bulkAddIcons:
+                value:
+                  icon_ids:
+                    - 33716
+                    - 33717
+                    - 33718
+      responses:
+        "200":
+          description: "All submitted icons already existed in the collection."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/BulkAddIconsResponse"
+        "201":
+          description: "At least one icon was added."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/BulkAddIconsResponse"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Adds up to 500 icon ids to an Icon Collection and reports which ids were created or already present."
+  "/api/pro/project-kits/{projectKit}/icons/{icon}":
+    delete:
+      tags:
+        - "Project Kits"
+      summary: "Remove one icon from an Icon Collection"
+      operationId: "removeProProjectKitIcon"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "collections:write"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+        -
+          "$ref": "#/components/parameters/IconId"
+      responses:
+        "200":
+          description: "Removal result and updated collection summary."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/RemoveIconResponse"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Removes one icon from an Icon Collection by icon id."
+  "/api/pro/project-kits/{projectKit}/exports":
+    post:
+      tags:
+        - "Exports"
+      summary: "Queue an Icon Collection export"
+      operationId: "createProProjectKitExport"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "exports:create"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+      requestBody:
+        required: false
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/CreateExportRequest"
+            examples:
+              createExport:
+                value:
+                  formats:
+                    - "react-ts"
+                    - "vue"
+                    - "license-manifest"
+                  options:
+                    colorPolicy: "currentColor"
+                    namingPolicy: "pascal"
+                    typescript: true
+                    defaultSize: 24
+      responses:
+        "202":
+          description: "Export queued."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ExportResponse"
+              examples:
+                export:
+                  value:
+                    data:
+                      id: 456
+                      status: "queued"
+                      formats:
+                        - "svg-folder"
+                        - "svg-sprite"
+                        - "json-manifest"
+                        - "license-manifest"
+                        - "react-ts"
+                      options:
+                        colorPolicy: "currentColor"
+                        namingPolicy: "pascal"
+                        typescript: true
+                        defaultSize: 24
+                      artifactFilename: null
+                      artifactSize: null
+                      artifactExists: false
+                      failureMessage: null
+                      createdAt: "2026-05-10T12:05:00+00:00"
+                      queuedAt: "2026-05-10T12:05:00+00:00"
+                      startedAt: null
+                      completedAt: null
+                      failedAt: null
+                      expiresAt: null
+                      statusUrl: "https://svgicons.com/api/pro/project-kits/123/exports/456"
+                      downloadUrl: null
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "422":
+          "$ref": "#/components/responses/ValidationError"
+      description: "Queues an Icon Collection export job for one or more supported export formats."
+  "/api/pro/project-kits/{projectKit}/exports/{export}":
+    get:
+      tags:
+        - "Exports"
+      summary: "Inspect an Icon Collection export"
+      operationId: "getProProjectKitExport"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "exports:create"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+        -
+          "$ref": "#/components/parameters/ExportId"
+      responses:
+        "200":
+          description: "Export status and download URL when ready."
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/ExportResponse"
+              examples:
+                export:
+                  value:
+                    data:
+                      id: 456
+                      status: "queued"
+                      formats:
+                        - "svg-folder"
+                        - "svg-sprite"
+                        - "json-manifest"
+                        - "license-manifest"
+                        - "react-ts"
+                      options:
+                        colorPolicy: "currentColor"
+                        namingPolicy: "pascal"
+                        typescript: true
+                        defaultSize: 24
+                      artifactFilename: null
+                      artifactSize: null
+                      artifactExists: false
+                      failureMessage: null
+                      createdAt: "2026-05-10T12:05:00+00:00"
+                      queuedAt: "2026-05-10T12:05:00+00:00"
+                      startedAt: null
+                      completedAt: null
+                      failedAt: null
+                      expiresAt: null
+                      statusUrl: "https://svgicons.com/api/pro/project-kits/123/exports/456"
+                      downloadUrl: null
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+      description: "Returns export job status and a download URL when the ZIP artifact is complete and still available."
+  "/api/pro/project-kits/{projectKit}/exports/{export}/download":
+    get:
+      tags:
+        - "Exports"
+      summary: "Download a completed Icon Collection export ZIP"
+      operationId: "downloadProProjectKitExport"
+      security:
+        -
+          bearerAuth: []
+      x-required-scopes:
+        - "exports:create"
+      parameters:
+        -
+          "$ref": "#/components/parameters/ProjectKitId"
+        -
+          "$ref": "#/components/parameters/ExportId"
+      responses:
+        "200":
+          description: "ZIP archive bytes."
+          content:
+            "application/zip":
+              schema:
+                type: "string"
+                format: "binary"
+        "401":
+          "$ref": "#/components/responses/Unauthenticated"
+        "403":
+          "$ref": "#/components/responses/MissingScope"
+        "404":
+          "$ref": "#/components/responses/NotFound"
+        "409":
+          "$ref": "#/components/responses/Conflict"
+      description: "Downloads a completed Icon Collection export ZIP artifact."
+components:
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "Sanctum personal access token"
+      description: "Use a Pro API token from the Svg/icons account token page in the Authorization header: `Authorization: Bearer YOUR_API_TOKEN`."
+  parameters:
+    IconId:
+      name: "icon"
+      in: "path"
+      required: true
+      description: "Numeric svgicons.com icon ID."
+      schema:
+        type: "integer"
+        minimum: 1
+    ProjectKitId:
+      name: "projectKit"
+      in: "path"
+      required: true
+      description: "Numeric Icon Collection ID."
+      schema:
+        type: "integer"
+        minimum: 1
+    ExportId:
+      name: "export"
+      in: "path"
+      required: true
+      description: "Numeric export job ID."
+      schema:
+        type: "integer"
+        minimum: 1
+  responses:
+    Unauthenticated:
+      description: "Missing or invalid bearer token."
+      content:
+        "application/json":
+          schema:
+            "$ref": "#/components/schemas/ErrorResponse"
+          examples:
+            unauthenticated:
+              value:
+                message: "Unauthenticated."
+    MissingScope:
+      description: "Pro entitlement or token scope denied."
+      content:
+        "application/json":
+          schema:
+            "$ref": "#/components/schemas/ScopeError"
+          examples:
+            missingScope:
+              value:
+                message: "This token is missing the search:read scope."
+                requiredScopes:
+                  - "search:read"
+                missingScope: "search:read"
+            proRequired:
+              value:
+                message: "This endpoint requires the Pro Plan."
+                requiredScopes:
+                  - "collections:read"
+                pricingUrl: "https://svgicons.com/pricing"
+    ValidationError:
+      description: "Request validation failed."
+      content:
+        "application/json":
+          schema:
+            "$ref": "#/components/schemas/ValidationError"
+    NotFound:
+      description: "Resource was not found or is not owned by the token user."
+      content:
+        "application/json":
+          schema:
+            "$ref": "#/components/schemas/ErrorResponse"
+          examples:
+            notFound:
+              value:
+                message: "Not Found"
+    Conflict:
+      description: "The export is not ready for download."
+      content:
+        "application/json":
+          schema:
+            "$ref": "#/components/schemas/ErrorResponse"
+          examples:
+            notReady:
+              value:
+                message: "Project icon collection export is not ready yet."
+  schemas:
+    Error:
+      type: "object"
+      required:
+        - "message"
+      properties:
+        message:
+          type: "string"
+      additionalProperties: true
+    ScopeError:
+      type: "object"
+      required:
+        - "message"
+        - "requiredScopes"
+      properties:
+        message:
+          type: "string"
+        requiredScopes:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ScopeValue"
+        missingScope:
+          "$ref": "#/components/schemas/ScopeValue"
+        pricingUrl:
+          type: "string"
+          format: "uri"
+      additionalProperties: true
+    ValidationError:
+      type: "object"
+      required:
+        - "message"
+        - "errors"
+      properties:
+        message:
+          type: "string"
+        errors:
+          type: "object"
+          additionalProperties:
+            type: "array"
+            items:
+              type: "string"
+    ScopeValue:
+      type: "string"
+      enum:
+        - "search:read"
+        - "icons:read"
+        - "collections:read"
+        - "collections:write"
+        - "exports:create"
+        - "mcp:use"
+    Scope:
+      type: "object"
+      required:
+        - "value"
+        - "label"
+        - "description"
+      properties:
+        value:
+          "$ref": "#/components/schemas/ScopeValue"
+        label:
+          type: "string"
+        description:
+          type: "string"
+    ScopeListResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ProApiScope"
+    MeResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          "$ref": "#/components/schemas/Account"
+    TokenSummary:
+      type:
+        - "object"
+        - "null"
+      properties:
+        id:
+          type:
+            - "integer"
+            - "null"
+        name:
+          type:
+            - "string"
+            - "null"
+        abilities:
+          type: "array"
+          items:
+            type: "string"
+        lastUsedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        expiresAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        createdAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+    IconSet:
+      type:
+        - "object"
+        - "null"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        prefix:
+          type: "string"
+        description:
+          type:
+            - "string"
+            - "null"
+        total:
+          type: "integer"
+        author:
+          type:
+            - "string"
+            - "null"
+        authorUrl:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        license:
+          type:
+            - "string"
+            - "null"
+        licenseUrl:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        spdx:
+          type:
+            - "string"
+            - "null"
+        category:
+          type:
+            - "string"
+            - "null"
+        statusBadge:
+          type:
+            - "string"
+            - "null"
+        pageUrl:
+          type: "string"
+          format: "uri"
+    Icon:
+      type: "object"
+      required:
+        - "id"
+        - "name"
+        - "slug"
+        - "width"
+        - "height"
+        - "viewBox"
+        - "pageUrl"
+        - "svgUrl"
+        - "iconSet"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        slug:
+          type: "string"
+        label:
+          type: "string"
+        description:
+          type:
+            - "string"
+            - "null"
+        category:
+          type:
+            - "string"
+            - "null"
+        width:
+          type: "integer"
+        height:
+          type: "integer"
+        viewBox:
+          type: "string"
+        pageUrl:
+          type: "string"
+          format: "uri"
+        svgUrl:
+          type: "string"
+          format: "uri"
+        iconSet:
+          "$ref": "#/components/schemas/IconSet"
+    IconWithSvg:
+      allOf:
+        -
+          "$ref": "#/components/schemas/Icon"
+        -
+          type: "object"
+          required:
+            - "body"
+            - "svg"
+            - "contentType"
+          properties:
+            body:
+              type: "string"
+            svg:
+              type: "string"
+            contentType:
+              type: "string"
+              const: "image/svg+xml"
+    IconResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          "$ref": "#/components/schemas/Icon"
+    IconSvgResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          "$ref": "#/components/schemas/IconWithSvg"
+    IconSearchResponse:
+      type: "object"
+      required:
+        - "data"
+        - "meta"
+      properties:
+        data:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/IconSearchResult"
+        meta:
+          type: "object"
+          required:
+            - "query"
+            - "limit"
+            - "offset"
+            - "page"
+            - "nextOffset"
+            - "hasMore"
+          properties:
+            query:
+              type: "string"
+            category:
+              type:
+                - "string"
+                - "null"
+            iconSetPrefix:
+              type:
+                - "string"
+                - "null"
+            limit:
+              type: "integer"
+            offset:
+              type: "integer"
+            page:
+              type: "integer"
+            nextOffset:
+              type: "integer"
+            hasMore:
+              type: "boolean"
+    ProjectKitSummary:
+      type: "object"
+      required:
+        - "id"
+        - "name"
+        - "slug"
+        - "framework"
+        - "colorPolicy"
+        - "namingPolicy"
+        - "iconsCount"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        slug:
+          type: "string"
+        description:
+          type:
+            - "string"
+            - "null"
+        framework:
+          type: "string"
+          enum:
+            - "svg"
+            - "react-ts"
+            - "vue"
+            - "sprite"
+        colorPolicy:
+          type: "string"
+          enum:
+            - "currentColor"
+            - "preserve"
+            - "strip"
+        namingPolicy:
+          type: "string"
+          enum:
+            - "kebab"
+            - "pascal"
+            - "camel"
+        iconsCount:
+          type: "integer"
+        showUrl:
+          type: "string"
+        updatedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        createdAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+    ProjectKitWriteRequest:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          maxLength: 120
+        description:
+          type:
+            - "string"
+            - "null"
+          maxLength: 600
+        framework:
+          type:
+            - "string"
+            - "null"
+          enum:
+            - "svg"
+            - "react-ts"
+            - "vue"
+            - "sprite"
+            - null
+        colorPolicy:
+          type:
+            - "string"
+            - "null"
+          enum:
+            - "currentColor"
+            - "preserve"
+            - "strip"
+            - null
+        color_policy:
+          type:
+            - "string"
+            - "null"
+          enum:
+            - "currentColor"
+            - "preserve"
+            - "strip"
+            - null
+        namingPolicy:
+          type:
+            - "string"
+            - "null"
+          enum:
+            - "kebab"
+            - "pascal"
+            - "camel"
+            - null
+        naming_policy:
+          type:
+            - "string"
+            - "null"
+          enum:
+            - "kebab"
+            - "pascal"
+            - "camel"
+            - null
+      examples:
+        -
+          name: "Billing settings"
+          description: "Icons for the billing settings screen."
+          framework: "react-ts"
+          colorPolicy: "currentColor"
+          namingPolicy: "pascal"
+    ProjectKitSummaryResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          "$ref": "#/components/schemas/ProjectKit"
+    ProjectKitListResponse:
+      type: "object"
+      required:
+        - "data"
+        - "meta"
+      properties:
+        data:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ProjectKit"
+        meta:
+          type: "object"
+          properties:
+            options:
+              "$ref": "#/components/schemas/ProjectKitOptions"
+    ProjectKitDetailResponse:
+      type: "object"
+      required:
+        - "data"
+        - "icons"
+      properties:
+        data:
+          allOf:
+            -
+              "$ref": "#/components/schemas/ProjectKitSummary"
+            -
+              type: "object"
+              properties:
+                licenseSummary:
+                  type: "array"
+                  items:
+                    type: "object"
+                    additionalProperties: true
+                iconSetSummary:
+                  type: "array"
+                  items:
+                    type: "object"
+                    additionalProperties: true
+        icons:
+          "$ref": "#/components/schemas/Pagination"
+    ProjectKitOptions:
+      type: "object"
+      properties:
+        frameworks:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "svg"
+              - "react-ts"
+              - "vue"
+              - "sprite"
+        colorPolicies:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "currentColor"
+              - "preserve"
+              - "strip"
+        namingPolicies:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "kebab"
+              - "pascal"
+              - "camel"
+    AddIconRequest:
+      type: "object"
+      required:
+        - "icon_id"
+      properties:
+        icon_id:
+          type: "integer"
+          minimum: 1
+    AddIconResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "object"
+          properties:
+            kit:
+              "$ref": "#/components/schemas/ProjectKitSummary"
+            iconId:
+              type: "integer"
+            created:
+              type: "boolean"
+    BulkAddIconsRequest:
+      type: "object"
+      required:
+        - "icon_ids"
+      properties:
+        icon_ids:
+          type: "array"
+          minItems: 1
+          maxItems: 500
+          uniqueItems: true
+          items:
+            type: "integer"
+            minimum: 1
+    BulkAddIconsResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "object"
+          properties:
+            kit:
+              "$ref": "#/components/schemas/ProjectKitSummary"
+            createdIconIds:
+              type: "array"
+              items:
+                type: "integer"
+            existingIconIds:
+              type: "array"
+              items:
+                type: "integer"
+            createdCount:
+              type: "integer"
+            existingCount:
+              type: "integer"
+    RemoveIconResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "object"
+          properties:
+            kit:
+              "$ref": "#/components/schemas/ProjectKitSummary"
+            iconId:
+              type: "integer"
+            removed:
+              type: "boolean"
+    CreateExportRequest:
+      type: "object"
+      properties:
+        formats:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ExportFormat"
+        options:
+          "$ref": "#/components/schemas/ExportOptions"
+      examples:
+        -
+          formats:
+            - "react-ts"
+            - "vue"
+            - "svelte"
+            - "solid"
+            - "blade"
+            - "storybook"
+            - "npm-package"
+            - "png-pack"
+            - "iconify-json"
+          options:
+            colorPolicy: "currentColor"
+            namingPolicy: "pascal"
+            sizeProps: true
+            typescript: true
+            defaultSize: 24
+            titleProp: true
+            decorative: true
+            componentSuffix: "Icon"
+            packageName: "svgicons-dashboard-icons"
+            packageVersion: "0.1.0"
+            png:
+              sizes:
+                - 512
+              densities:
+                - 1
+                - 2
+              backgroundType: "transparent"
+              iconColorMode: "preserve"
+              padding: 48
+    ExportFormat:
+      type: "string"
+      enum:
+        - "svg-folder"
+        - "svg-sprite"
+        - "json-manifest"
+        - "license-manifest"
+        - "react-ts"
+        - "vue"
+        - "svelte"
+        - "solid"
+        - "blade"
+        - "storybook"
+        - "npm-package"
+        - "png-pack"
+        - "iconify-json"
+    ExportOptions:
+      type: "object"
+      properties:
+        colorPolicy:
+          type: "string"
+          enum:
+            - "currentColor"
+            - "preserve"
+            - "strip"
+        color_policy:
+          type: "string"
+          enum:
+            - "currentColor"
+            - "preserve"
+            - "strip"
+        namingPolicy:
+          type: "string"
+          enum:
+            - "kebab"
+            - "pascal"
+            - "camel"
+        naming_policy:
+          type: "string"
+          enum:
+            - "kebab"
+            - "pascal"
+            - "camel"
+        sizeProps:
+          type: "boolean"
+        size_props:
+          type: "boolean"
+        typescript:
+          type: "boolean"
+        defaultSize:
+          type: "integer"
+          minimum: 1
+          maximum: 1024
+          default: 24
+          description: "Default component size for framework exports when size props are enabled."
+        default_size:
+          type: "integer"
+          minimum: 1
+          maximum: 1024
+          default: 24
+        titleProp:
+          type: "boolean"
+          default: true
+          description: "Whether generated framework components expose a title prop and title element."
+        title_prop:
+          type: "boolean"
+          default: true
+        decorative:
+          type: "boolean"
+          default: true
+          description: "Whether generated components default to decorative aria-hidden behavior when no title is provided."
+        componentSuffix:
+          type: "string"
+          pattern: "^[A-Za-z][A-Za-z0-9]{0,31}$"
+          default: "Icon"
+          description: "Safe suffix appended to generated React, Solid, Svelte, Vue, and Blade component export names where applicable."
+        component_suffix:
+          type: "string"
+          pattern: "^[A-Za-z][A-Za-z0-9]{0,31}$"
+          default: "Icon"
+        packageName:
+          type: "string"
+          maxLength: 214
+          pattern: "^(?:@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*|[a-z0-9][a-z0-9._-]*)$"
+          description: "Optional lowercase npm package name for npm-package exports. Supports scoped names such as @svgicons-com/dashboard-icons."
+        package_name:
+          type: "string"
+          maxLength: 214
+          pattern: "^(?:@[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*|[a-z0-9][a-z0-9._-]*)$"
+        packageVersion:
+          type: "string"
+          maxLength: 64
+          pattern: "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+          default: "0.1.0"
+          description: "Optional semver-like version for npm-package exports."
+        package_version:
+          type: "string"
+          maxLength: 64
+          pattern: "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+          default: "0.1.0"
+        png:
+          "$ref": "#/components/schemas/PngOptions"
+      additionalProperties: true
+    PngOptions:
+      type: "object"
+      properties:
+        sizes:
+          type: "array"
+          maxItems: 6
+          items:
+            type: "integer"
+            enum:
+              - 16
+              - 24
+              - 32
+              - 48
+              - 96
+              - 128
+              - 256
+              - 512
+              - 1024
+        densities:
+          type: "array"
+          maxItems: 3
+          items:
+            type: "integer"
+            enum:
+              - 1
+              - 2
+              - 3
+        backgroundType:
+          type: "string"
+          enum:
+            - "transparent"
+            - "solid"
+        backgroundColor:
+          type: "string"
+          pattern: "^#[0-9a-fA-F]{6}$"
+        iconColorMode:
+          type: "string"
+          enum:
+            - "preserve"
+            - "black"
+            - "white"
+            - "custom"
+        iconColor:
+          type: "string"
+          pattern: "^#[0-9a-fA-F]{6}$"
+        padding:
+          type: "integer"
+          minimum: 0
+          maximum: 256
+        fit:
+          type: "string"
+          enum:
+            - "contain"
+    IconPngExportRequest:
+      type: "object"
+      required:
+        - "iconName"
+      properties:
+        iconName:
+          type: "string"
+          maxLength: 120
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        sizes:
+          type: "array"
+          minItems: 1
+          maxItems: 9
+          items:
+            type: "integer"
+            enum:
+              - 16
+              - 24
+              - 32
+              - 48
+              - 96
+              - 128
+              - 256
+              - 512
+              - 1024
+        densities:
+          type: "array"
+          minItems: 1
+          maxItems: 4
+          items:
+            type: "integer"
+            enum:
+              - 1
+              - 2
+              - 3
+              - 4
+        backgroundType:
+          type: "string"
+          enum:
+            - "transparent"
+            - "solid"
+        backgroundColor:
+          type: "string"
+          pattern: "^#[0-9a-fA-F]{6}$"
+        iconColorMode:
+          type: "string"
+          enum:
+            - "preserve"
+            - "black"
+            - "white"
+            - "custom"
+        iconColor:
+          type: "string"
+          pattern: "^#[0-9a-fA-F]{6}$"
+        padding:
+          type: "integer"
+          minimum: 0
+          maximum: 256
+        fit:
+          type: "string"
+          enum:
+            - "contain"
+        filename:
+          type: "string"
+          maxLength: 120
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        zip:
+          type: "boolean"
+    Export:
+      type: "object"
+      required:
+        - "id"
+        - "status"
+        - "formats"
+        - "options"
+        - "artifactExists"
+        - "statusUrl"
+        - "downloadUrl"
+      properties:
+        id:
+          type: "integer"
+        status:
+          type: "string"
+          enum:
+            - "queued"
+            - "processing"
+            - "completed"
+            - "failed"
+        formats:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ExportFormat"
+        options:
+          type: "object"
+          additionalProperties: true
+        artifactFilename:
+          type:
+            - "string"
+            - "null"
+        artifactSize:
+          type:
+            - "integer"
+            - "null"
+        artifactExists:
+          type: "boolean"
+        failureMessage:
+          type:
+            - "string"
+            - "null"
+        createdAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        queuedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        startedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        completedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        failedAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        expiresAt:
+          type:
+            - "string"
+            - "null"
+          format: "date-time"
+        statusUrl:
+          type: "string"
+        downloadUrl:
+          type:
+            - "string"
+            - "null"
+    ExportResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          "$ref": "#/components/schemas/ProjectKitExport"
+    ProApiScope:
+      description: "One currently supported Pro API scope."
+      allOf:
+        -
+          "$ref": "#/components/schemas/Scope"
+    ProApiUser:
+      type: "object"
+      required:
+        - "id"
+        - "name"
+        - "email"
+        - "hasVerifiedEmail"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        email:
+          type: "string"
+          format: "email"
+        hasVerifiedEmail:
+          type: "boolean"
+    Account:
+      type: "object"
+      required:
+        - "user"
+        - "access"
+        - "token"
+        - "scopes"
+      properties:
+        user:
+          "$ref": "#/components/schemas/ProApiUser"
+        access:
+          type: "object"
+          description: "Current account access summary returned by the website access service."
+          additionalProperties: true
+        token:
+          "$ref": "#/components/schemas/TokenSummary"
+        scopes:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ProApiScope"
+    IconSearchResult:
+      description: "Icon metadata item returned by Pro API search."
+      allOf:
+        -
+          "$ref": "#/components/schemas/Icon"
+    PngExportRequest:
+      description: "Single-icon PNG export request body."
+      allOf:
+        -
+          "$ref": "#/components/schemas/IconPngExportRequest"
+    PngExportResponse:
+      description: "Binary PNG or ZIP bytes returned by the live endpoint."
+      type: "string"
+      format: "binary"
+    ProjectKit:
+      description: "Icon Collection summary returned by the Pro REST API."
+      allOf:
+        -
+          "$ref": "#/components/schemas/ProjectKitSummary"
+    ProjectKitIcon:
+      type: "object"
+      required:
+        - "id"
+        - "icon_set_id"
+        - "name"
+        - "width"
+        - "height"
+        - "body"
+        - "iconSet"
+      properties:
+        id:
+          type: "integer"
+        icon_set_id:
+          type:
+            - "integer"
+            - "null"
+        name:
+          type: "string"
+        width:
+          type: "integer"
+        height:
+          type: "integer"
+        body:
+          type: "string"
+        iconSet:
+          type:
+            - "object"
+            - "null"
+          properties:
+            id:
+              type: "integer"
+            name:
+              type: "string"
+            prefix:
+              type: "string"
+            license:
+              type:
+                - "string"
+                - "null"
+            licenseUrl:
+              type:
+                - "string"
+                - "null"
+              format: "uri"
+    ProjectKitExport:
+      description: "Icon Collection export job."
+      allOf:
+        -
+          "$ref": "#/components/schemas/Export"
+    Pagination:
+      type: "object"
+      description: "Laravel length-aware paginator response used for Icon Collection icons."
+      properties:
+        data:
+          type: "array"
+          items:
+            "$ref": "#/components/schemas/ProjectKitIcon"
+        current_page:
+          type: "integer"
+        first_page_url:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        from:
+          type:
+            - "integer"
+            - "null"
+        last_page:
+          type: "integer"
+        last_page_url:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        links:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              url:
+                type:
+                  - "string"
+                  - "null"
+                format: "uri"
+              label:
+                type: "string"
+              active:
+                type: "boolean"
+        next_page_url:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        path:
+          type: "string"
+          format: "uri"
+        per_page:
+          type: "integer"
+        prev_page_url:
+          type:
+            - "string"
+            - "null"
+          format: "uri"
+        to:
+          type:
+            - "integer"
+            - "null"
+        total:
+          type: "integer"
+      additionalProperties: true
+    ErrorResponse:
+      description: "Common JSON error response."
+      allOf:
+        -
+          "$ref": "#/components/schemas/Error"
+externalDocs:
+  description: "Svg/icons API developer documentation"
+  url: "https://svgicons.com/developers/api"
+x-source-openapi:
+  publicUrl: "https://svgicons.com/openapi/pro-api.json"
+  websiteRepoPath: "public/openapi/pro-api.json"

@@ -1,0 +1,7 @@
+{
+  "name": "Dashboard icons",
+  "description": "Icons used by the dashboard UI.",
+  "framework": "react-ts",
+  "colorPolicy": "currentColor",
+  "namingPolicy": "pascal"
+}

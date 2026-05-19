@@ -1,0 +1,24 @@
+name: Icon provenance report
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  icon-provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run report
+        env:
+          SVGICONS_API_TOKEN: ${{ secrets.SVGICONS_API_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: icon-provenance-report
+          path: |
+            output/THIRD_PARTY_ICONS.md
+            output/third-party-icons.json

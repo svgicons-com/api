@@ -1,0 +1,28 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": {
+    "id": 33716,
+    "name": "arrow-circle-up-fill",
+    "slug": "arrow-circle-up-fill",
+    "label": "Arrow Circle Up Fill",
+    "description": null,
+    "category": "Interface",
+    "width": 24,
+    "height": 24,
+    "viewBox": "0 0 24 24",
+    "pageUrl": "https://svgicons.com/icon/33716/arrow-circle-up-fill",
+    "svgUrl": "https://svgicons.com/img/33716/arrow-circle-up-fill.svg",
+    "iconSet": {
+      "id": 10,
+      "name": "Pro REST Icons",
+      "prefix": "pro-rest-icons",
+      "license": "MIT",
+      "licenseUrl": "https://opensource.org/licenses/MIT"
+    },
+    "body": "<path d=\"M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z\"/>",
+    "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\"><path d=\"M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z\"/></svg>",
+    "contentType": "image/svg+xml"
+  }
+}

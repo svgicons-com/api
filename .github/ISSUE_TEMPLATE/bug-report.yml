@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a reproducible bug in the API docs, SDK package, examples, or recipes.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include real API tokens, private data, or credentials. Redact logs before submitting.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - OpenAPI
+        - SDK
+        - Example
+        - Recipe
+        - Project Kits
+        - MCP workflow
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: sdk_version
+    attributes:
+      label: SDK version or local commit
+      placeholder: 0.1.0-alpha.0 or local commit SHA
+    validations:
+      required: false
+  - type: input
+    id: node_version
+    attributes:
+      label: Node version
+      placeholder: v22.12.0
+    validations:
+      required: false
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Minimal code snippet
+      render: ts
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or errors
+      description: Redact headers, tokens, private project names, and customer data.
+      render: text
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm this report does not include a real API token.
+          required: true

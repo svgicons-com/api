@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-design-system-icons",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Build an approved design-system icon manifest from Svg/icons Pro API metadata.",
+  "scripts": {
+    "build:manifest": "npm --prefix ../../packages/js run build && node src/build-manifest.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

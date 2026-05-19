@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-svg-sprite-generator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generate a simple SVG sprite from Svg/icons Pro API SVG payloads.",
+  "scripts": {
+    "generate": "npm --prefix ../../packages/js run build && node src/generate-sprite.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Svg/icons API docs
+    url: https://svgicons.com/developers/api
+    about: Read the current Svg/icons API documentation.
+  - name: API token docs
+    url: https://svgicons.com/docs/api-tokens
+    about: Learn how to create and manage Svg/icons API tokens.
+  - name: MCP docs
+    url: https://svgicons.com/developers/mcp
+    about: Read the hosted MCP workflow documentation.
+  - name: Svg/icons CLI repo
+    url: https://github.com/svgicons-com/cli
+    about: Open issues related to the existing CLI in the CLI repository.

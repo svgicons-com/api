@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "id": 33716,
+      "name": "arrow-circle-up-fill",
+      "slug": "arrow-circle-up-fill",
+      "label": "Arrow Circle Up Fill",
+      "description": null,
+      "category": "Interface",
+      "width": 24,
+      "height": 24,
+      "viewBox": "0 0 24 24",
+      "pageUrl": "https://svgicons.com/icon/33716/arrow-circle-up-fill",
+      "svgUrl": "https://svgicons.com/img/33716/arrow-circle-up-fill.svg",
+      "iconSet": {
+        "id": 10,
+        "name": "Pro REST Icons",
+        "prefix": "pro-rest-icons",
+        "description": "Example icon set used by Pro REST API tests.",
+        "total": 120,
+        "author": "Svg/icons",
+        "authorUrl": null,
+        "license": "MIT",
+        "licenseUrl": "https://opensource.org/licenses/MIT",
+        "spdx": "MIT",
+        "category": "Interface",
+        "statusBadge": null,
+        "pageUrl": "https://svgicons.com/icon-set/pro-rest-icons"
+      }
+    }
+  ],
+  "meta": {
+    "query": "arrow",
+    "category": null,
+    "iconSetPrefix": null,
+    "limit": 20,
+    "offset": 0,
+    "page": 1,
+    "nextOffset": 1,
+    "hasMore": false
+  }
+}

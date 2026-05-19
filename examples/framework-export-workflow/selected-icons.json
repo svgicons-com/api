@@ -1,0 +1,24 @@
+{
+  "projectKit": {
+    "name": "Dashboard icons",
+    "description": "Navigation icons prepared for framework exports",
+    "framework": "react-ts",
+    "colorPolicy": "currentColor",
+    "namingPolicy": "pascal"
+  },
+  "icons": [
+    33716
+  ],
+  "export": {
+    "formats": [
+      "react-ts",
+      "vue",
+      "license-manifest"
+    ],
+    "options": {
+      "typescript": true,
+      "defaultSize": 24,
+      "componentSuffix": "Icon"
+    }
+  }
+}

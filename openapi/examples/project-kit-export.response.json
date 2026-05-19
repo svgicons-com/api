@@ -1,0 +1,31 @@
+{
+  "data": {
+    "id": 456,
+    "status": "queued",
+    "formats": [
+      "svg-folder",
+      "svg-sprite",
+      "json-manifest",
+      "license-manifest",
+      "react-ts"
+    ],
+    "options": {
+      "colorPolicy": "currentColor",
+      "namingPolicy": "pascal",
+      "typescript": true,
+      "defaultSize": 24
+    },
+    "artifactFilename": null,
+    "artifactSize": null,
+    "artifactExists": false,
+    "failureMessage": null,
+    "createdAt": "2026-05-10T12:05:00+00:00",
+    "queuedAt": "2026-05-10T12:05:00+00:00",
+    "startedAt": null,
+    "completedAt": null,
+    "failedAt": null,
+    "expiresAt": null,
+    "statusUrl": "https://svgicons.com/api/pro/project-kits/123/exports/456",
+    "downloadUrl": null
+  }
+}

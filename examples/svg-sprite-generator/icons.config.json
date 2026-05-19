@@ -1,0 +1,9 @@
+{
+  "output": "dist/sprite.svg",
+  "icons": [
+    {
+      "id": 33716,
+      "symbol": "icon-arrow-circle-up-fill"
+    }
+  ]
+}

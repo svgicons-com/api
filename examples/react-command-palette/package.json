@@ -1,0 +1,21 @@
+{
+  "name": "svgicons-example-react-command-palette",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "React command palette pattern for searching Svg/icons through a server-side proxy.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@svgicons-com/api-client": "file:../../packages/js",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

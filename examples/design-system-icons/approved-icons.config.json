@@ -1,0 +1,10 @@
+{
+  "output": "output/icons.manifest.json",
+  "icons": [
+    {
+      "id": 33716,
+      "usage": "Primary upward navigation action",
+      "approvedName": "ArrowCircleUp"
+    }
+  ]
+}

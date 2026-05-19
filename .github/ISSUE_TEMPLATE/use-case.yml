@@ -1,0 +1,106 @@
+name: Use case
+description: Share what you built with the Svg/icons API, SDK, CLI, or MCP-style workflows.
+title: "[Use case]: "
+labels:
+  - use-case
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share useful developer workflows, not link drops. External links are optional and may be reviewed. Do not include real API tokens or private data.
+  - type: input
+    id: name
+    attributes:
+      label: Project or use-case name
+      placeholder: Internal design-system icon picker
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem solved
+      description: What developer, design-system, CI, or AI-coding workflow did this improve?
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Stack
+      placeholder: Next.js, React, TypeScript, GitHub Actions
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow_type
+    attributes:
+      label: Workflow type
+      multiple: true
+      options:
+        - Live Pro API
+        - TypeScript SDK
+        - CLI workflow
+        - MCP / AI coding workflow
+        - CI/provenance workflow
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: api_features
+    attributes:
+      label: API features used
+      multiple: true
+      options:
+        - Search
+        - Icon metadata
+        - SVG retrieval
+        - PNG export
+        - Project Kits
+        - Project Kit exports
+        - CLI exports
+        - MCP JSON-RPC over /mcp
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: sdk_methods
+    attributes:
+      label: SDK methods used
+      description: Optional. Example: client.search.icons(), client.icons.getSvg()
+    validations:
+      required: false
+  - type: input
+    id: public_url
+    attributes:
+      label: Public URL, demo, or repository
+      description: Optional. Include only links you have permission to share.
+    validations:
+      required: false
+  - type: textarea
+    id: code
+    attributes:
+      label: Code snippet
+      description: Optional. Use placeholders only, never real tokens.
+      render: ts
+    validations:
+      required: false
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or GIFs
+      description: Optional. Drag images here only if you have permission to share them.
+    validations:
+      required: false
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Permission and safety
+      options:
+        - label: You may feature this use case in the repo.
+          required: false
+        - label: You may feature this use case on svgicons.com with attribution.
+          required: false
+        - label: I confirm I did not include real API tokens.
+          required: true
+        - label: I confirm I have permission to share the content.
+          required: true
+        - label: I understand external links are optional and may be removed if they are spammy, unsafe, unrelated, paid without disclosure, or not useful to developers.
+          required: true

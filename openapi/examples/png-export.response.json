@@ -1,0 +1,7 @@
+{
+  "note": "The live endpoint returns binary image/png or application/zip bytes, not a JSON body.",
+  "status": 200,
+  "contentType": "image/png",
+  "contentDisposition": "attachment; filename=\"arrow-circle-up-fill-512.png\"",
+  "body": "<binary PNG bytes>"
+}

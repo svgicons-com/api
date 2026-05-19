@@ -1,0 +1,13 @@
+{
+  "method": "GET",
+  "path": "/api/pro/search",
+  "headers": {
+    "Authorization": "Bearer YOUR_API_TOKEN",
+    "Accept": "application/json"
+  },
+  "query": {
+    "q": "arrow",
+    "limit": 20,
+    "offset": 0
+  }
+}

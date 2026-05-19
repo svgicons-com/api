@@ -1,0 +1,13 @@
+{
+  "name": "svgicons-example-server-side-token-proxy",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal server-side proxy that keeps Svg/icons Pro API tokens private.",
+  "scripts": {
+    "start": "npm --prefix ../../packages/js run build && node src/server.mjs"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

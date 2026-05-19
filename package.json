@@ -1,0 +1,33 @@
+{
+  "name": "svgicons-api-github",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OpenAPI spec, TypeScript SDK, examples, recipes, and use cases for the svgicons.com Pro API.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svgicons-com/api.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/js"
+  ],
+  "scripts": {
+    "build": "npm --workspace @svgicons-com/api-client run build",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "sync:openapi": "node scripts/sync-openapi.mjs",
+    "test": "npm --workspace @svgicons-com/api-client run test",
+    "typecheck": "npm --workspace @svgicons-com/api-client run typecheck",
+    "validate:openapi": "node scripts/sync-openapi.mjs --check && redocly lint openapi/svgicons.openapi.yaml",
+    "validate:scaffold": "node scripts/validate-scaffold.mjs",
+    "validate": "npm run check:secrets && npm run check:docs && npm run validate:scaffold && npm run validate:openapi && npm run typecheck && npm run build && npm run test"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.31.2",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}
