@@ -94,6 +94,7 @@ Do not paste private API tokens into AI prompts or MCP client logs. Keep token e
 - [OpenAPI spec](../openapi/svgicons.openapi.yaml)
 - [Svg/icons API docs](https://svgicons.com/developers/api)
 - [Svg/icons MCP docs](https://svgicons.com/developers/mcp)
+- [Svg/icons MCP repo](https://github.com/svgicons-com/mcp)
 - [API token docs](https://svgicons.com/docs/api-tokens)
 
 ## Limitations

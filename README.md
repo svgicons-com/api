@@ -6,6 +6,7 @@ This repository is the developer home for the official svgicons.com Pro API. It 
 
 - API docs: https://svgicons.com/developers/api
 - MCP docs: https://svgicons.com/developers/mcp
+- MCP repo: https://github.com/svgicons-com/mcp
 - CLI repo: https://github.com/svgicons-com/cli
 - API repo: https://github.com/svgicons-com/api
 
@@ -173,7 +174,7 @@ Start with the [recipes index](recipes/) for task-focused guides. Current recipe
 - [Manage Project Kits](recipes/manage-project-kits.md) - create collections, add icons, queue exports, and download artifacts.
 - [Export icons to frameworks](recipes/export-icons-to-frameworks.md) - combine API Project Kits with CLI framework export workflows.
 - [Generate a license manifest](recipes/generate-license-manifest.md) - produce provenance reports from live metadata.
-- [Use Svg/icons with MCP](recipes/use-svgicons-with-mcp.md) - keep REST helpers and hosted MCP JSON-RPC workflows separate.
+- [Use Svg/icons with MCP](recipes/use-svgicons-with-mcp.md) - keep REST helpers and hosted MCP JSON-RPC workflows separate; use the MCP repo for setup guides, prompts, examples, and client configs.
 - [Use Svg/icons in CI](recipes/use-svgicons-in-ci.md) - run team-defined provenance checks in CI.
 
 Recipes use live `/api/pro` behavior unless they explicitly describe a separate MCP or CLI workflow. They do not imply npm publication.
