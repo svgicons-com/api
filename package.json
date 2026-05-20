@@ -29,5 +29,8 @@
   },
   "engines": {
     "node": ">=18.18"
+  },
+  "dependencies": {
+    "@svgicons-com/api-client": "^0.1.0"
   }
 }
