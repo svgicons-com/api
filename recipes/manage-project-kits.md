@@ -110,6 +110,23 @@ if (latest.data.status === "completed") {
 }
 ```
 
+## Removing Icons: Variants
+
+An icon can appear in a collection as a plain entry plus custom-icon variants styled with the website's Icon Studio. `client.projectKits.icons.remove()` mirrors the live endpoint semantics:
+
+```ts
+// Default: removes every entry of the icon (plain + custom variants).
+await client.projectKits.icons.remove({ projectKit: 123, icon: 33716 });
+
+// Keep custom variants, remove only the plain entry.
+await client.projectKits.icons.remove({ projectKit: 123, icon: 33716, allVariants: false });
+
+// Remove exactly one custom-icon variant by its Icon Studio edit id.
+await client.projectKits.icons.remove({ projectKit: 123, icon: 33716, editId: 77 });
+```
+
+Collection reads surface those variants: every entry includes `entryId`, and custom-icon entries include `customEditId`, `customName`, and their customized SVG snapshot as the `body`.
+
 ## Security Notes
 
 Run Project Kit write operations from trusted tooling. Keep token values out of logs and avoid exposing collection mutation routes directly to public users.

@@ -2,7 +2,7 @@
 
 OpenAPI spec, SDK, examples, recipes, and developer use cases for the [svgicons.com](https://svgicons.com) Pro API.
 
-This repository is the developer home for the official svgicons.com Pro API. It documents the current Pro REST API, the hosted MCP endpoint as a related workflow, companion CLI workflows, and the alpha SDK package for teams that want to search, export, audit, and integrate open-source SVG icons in developer workflows.
+This repository is the developer home for the official svgicons.com Pro API, the programmatic gateway to 320K+ open-source SVG icons. It documents the current Pro REST API, the hosted MCP endpoint as a related workflow, companion CLI workflows, and the alpha SDK package for teams that want to search, export, audit, and integrate open-source SVG icons in developer workflows.
 
 - API docs: https://svgicons.com/developers/api
 - MCP docs: https://svgicons.com/developers/mcp
@@ -20,9 +20,17 @@ https://svgicons.com/openapi/pro-api.json
 
 This repo keeps the API-repo OpenAPI source at [openapi/svgicons.openapi.yaml](openapi/svgicons.openapi.yaml). The TypeScript SDK package source lives in [packages/js](packages/js/) and should be treated as alpha until it is published to npm.
 
+Recent contract additions documented by the spec:
+
+- `DELETE /api/pro/project-kits/{projectKit}/icons/{icon}` accepts `all_variants` (boolean, defaults to `true` for backward compatibility — removes the plain entry plus any custom-icon variants; pass `false` to keep custom variants) and `edit_id` (integer — remove exactly one custom-icon variant, entry-precise). The MCP `remove_icon_from_collection` tool deliberately defaults the other way (entry-precise).
+- Collection reads surface custom-icon entries created with the website's Icon Studio: every entry includes `entryId` (the entry row id), and custom-icon entries include `customEditId`, `customName`, and their customized SVG snapshot as the `body`.
+- Kit summaries include `styledWith` (the style name when a collection was built by applying a style), and the collection detail response includes `hasCustomIcons`.
+
 ## Authentication Required
 
 This repository documents the official svgicons.com Pro API. The documented `/api/pro` endpoints require a svgicons.com Pro API token unless an endpoint is explicitly documented otherwise by the OpenAPI source.
+
+Pro API tokens are part of the [Pro Plan](https://svgicons.com/pricing) (€6/$7 per month or €69/$79 lifetime), and API usage is unlimited on Pro. On the website, Icon Collections are also available to free Member accounts through a one-time trial allowance of 15 Pro credits — that credit system applies to website actions only, never to API calls, because the API always requires a Pro token.
 
 Examples use `SVGICONS_API_TOKEN` as the environment variable and `YOUR_API_TOKEN` as the placeholder token value. Do not expose Pro API tokens in public frontend JavaScript. Use server-side routes, backend proxies, server actions, secure workers, or CI jobs for token-authenticated API calls.
 

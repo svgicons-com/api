@@ -47,6 +47,15 @@ This API repo keeps a polished YAML copy generated from that source file. Mainta
 npm run sync:openapi
 ```
 
+The sync script resolves the website source from `SVGICONS_WEBSITE_OPENAPI` or a sibling website checkout (`../svgicons/public/openapi/pro-api.json`). Besides polish (tags, descriptions, examples), `scripts/sync-openapi.mjs` contains a `patchLiveContractDeltas` step that layers documented live contract additions on top of the source file when the source has not been regenerated yet — currently the `all_variants`/`edit_id` parameters on the remove-icon operation, the `entryId`/`customEditId`/`customName` entry fields, `styledWith` on kit summaries, and `hasCustomIcons` on the detail response. Each patch should be deleted once the website regenerates `pro-api.json` with that addition, keeping the generated YAML identical either way.
+
+The full sync procedure for a contract change:
+
+1. Regenerate or patch the website's `public/openapi/pro-api.json` in the website repo (source of truth), or add a temporary patch to `patchLiveContractDeltas` when only the public copy can move.
+2. Run `npm run sync:openapi` in this repo.
+3. Run `npm run validate` (checks sync freshness and lints with Redocly).
+4. Commit the YAML and the script together.
+
 ## Validation
 
 Run the repository checks:
