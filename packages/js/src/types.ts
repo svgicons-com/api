@@ -126,6 +126,8 @@ export interface ProjectKit {
   framework: ProjectKitFramework;
   colorPolicy: ColorPolicy;
   namingPolicy: NamingPolicy;
+  /** The style name when the collection was built by applying a style. */
+  styledWith?: string | null;
   iconsCount: number;
   showUrl?: string;
   updatedAt?: string | null;
@@ -159,11 +161,18 @@ export interface ProjectKitListResponse {
 
 export interface ProjectKitIcon {
   id: number;
+  /** The entry row id: an icon can appear as a plain entry plus custom-icon variants. */
+  entryId?: number | null;
   icon_set_id: number | null;
   name: string;
   width: number;
   height: number;
+  /** For custom-icon entries this is the customized rendered snapshot, not the catalog body. */
   body: string;
+  /** The Icon Studio edit id when the entry is a custom-icon variant. */
+  customEditId?: number | null;
+  /** The custom icon's name when the entry is a custom-icon variant. */
+  customName?: string | null;
   iconSet: {
     id: number;
     name: string;
@@ -209,6 +218,8 @@ export interface ProjectKitDetail extends ProjectKit {
     prefix: string;
     count: number;
   }>;
+  /** Whether any entry in the collection is a custom-icon variant. */
+  hasCustomIcons?: boolean;
 }
 
 export interface ProjectKitDetailResponse {
@@ -239,6 +250,8 @@ export interface RemoveIconResponse {
     kit?: ProjectKit;
     iconId?: number;
     removed?: boolean;
+    allVariants?: boolean;
+    editId?: number | null;
   };
 }
 

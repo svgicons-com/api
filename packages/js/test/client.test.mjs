@@ -46,6 +46,27 @@ test("builds search query strings", async () => {
   assert.equal(url.searchParams.get("iconSetPrefix"), "pro-rest-icons");
 });
 
+test("sends all_variants and edit_id as remove-icon query parameters", async () => {
+  const mock = mockFetch(() => jsonResponse({ data: { iconId: 33716, removed: true } }));
+  const client = new SvgiconsClient({ fetch: mock.fetch });
+
+  await client.projectKits.icons.remove({ projectKit: 123, icon: 33716 });
+  await client.projectKits.icons.remove({ projectKit: 123, icon: 33716, allVariants: false });
+  await client.projectKits.icons.remove({ projectKit: 123, icon: 33716, editId: 77 });
+
+  const bare = new URL(mock.calls[0].url);
+  assert.equal(bare.pathname, "/api/pro/project-kits/123/icons/33716");
+  assert.equal(bare.searchParams.has("all_variants"), false);
+  assert.equal(bare.searchParams.has("edit_id"), false);
+
+  const plainOnly = new URL(mock.calls[1].url);
+  assert.equal(plainOnly.searchParams.get("all_variants"), "0");
+
+  const oneVariant = new URL(mock.calls[2].url);
+  assert.equal(oneVariant.searchParams.get("edit_id"), "77");
+  assert.equal(mock.calls[2].method, "DELETE");
+});
+
 test("gets icon metadata from the live /api/pro path shape", async () => {
   const mock = mockFetch(() => jsonResponse({ data: icon() }));
   const client = new SvgiconsClient({ fetch: mock.fetch });

@@ -30,6 +30,20 @@ export interface ProjectKitIconParams extends ProjectKitIdParams {
   icon: Id;
 }
 
+export interface RemoveProjectKitIconParams extends ProjectKitIconParams {
+  /**
+   * Defaults to true on the server for backward compatibility: removes every
+   * entry of the icon (the plain entry plus any custom-icon variants). Pass
+   * false to remove only the plain entry. Ignored when editId is provided.
+   */
+  allVariants?: boolean;
+  /**
+   * Remove exactly one custom-icon variant: the entry whose Icon Studio edit
+   * id matches. The edit must belong to the authenticated account.
+   */
+  editId?: Id;
+}
+
 export interface AddProjectKitIconParams extends ProjectKitIdParams {
   icon: number;
 }
@@ -47,7 +61,7 @@ export interface CreateProjectKitExportParams extends CreateExportRequest, Proje
 export interface ProjectKitIconsResource {
   add(params: AddProjectKitIconParams): Promise<AddIconResponse>;
   addBulk(params: AddBulkProjectKitIconsParams): Promise<BulkAddIconsResponse>;
-  remove(params: ProjectKitIconParams): Promise<RemoveIconResponse>;
+  remove(params: RemoveProjectKitIconParams): Promise<RemoveIconResponse>;
 }
 
 export interface ProjectKitExportsResource {
@@ -84,8 +98,14 @@ export function createProjectKitsResource(
             icon_ids: icons,
           },
         }),
-      remove: ({ projectKit, icon }) =>
-        request<RemoveIconResponse>("DELETE", `/api/pro/project-kits/${pathParam(projectKit)}/icons/${pathParam(icon)}`),
+      remove: ({ projectKit, icon, allVariants, editId }) =>
+        request<RemoveIconResponse>("DELETE", `/api/pro/project-kits/${pathParam(projectKit)}/icons/${pathParam(icon)}`, {
+          query: {
+            // The server's boolean validation accepts 1/0, not "true"/"false".
+            ...(allVariants === undefined ? {} : { all_variants: allVariants ? 1 : 0 }),
+            ...(editId === undefined ? {} : { edit_id: editId }),
+          },
+        }),
     },
     exports: {
       create: ({ projectKit, formats, options }) =>
