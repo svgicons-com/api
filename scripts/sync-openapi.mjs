@@ -47,7 +47,7 @@ const operationDescriptions = {
   createProProjectKit:
     "Creates an Icon Collection for the authenticated user.",
   getProProjectKit:
-    "Returns one Icon Collection, license and icon-set summaries, and a paginated list of icons in the collection.",
+    "Returns one Icon Collection, license and icon-set summaries, and a paginated list of the entries in the collection. Every entry includes entryId (the entry row id); custom-icon entries also include customEditId, customName, and their customized SVG snapshot as the body.",
   updateProProjectKit:
     "Updates an Icon Collection's name, description, framework, color policy, or naming policy.",
   deleteProProjectKit:
@@ -57,7 +57,7 @@ const operationDescriptions = {
   bulkAddProProjectKitIcons:
     "Adds up to 500 icon ids to an Icon Collection and reports which ids were created or already present.",
   removeProProjectKitIcon:
-    "Removes one icon from an Icon Collection by icon id.",
+    "Removes an icon from an Icon Collection by icon id. Without parameters, all_variants defaults to true for backward compatibility and every entry of the icon is removed — the plain entry plus any custom-icon variants. Pass all_variants=false to remove only the plain entry, or edit_id to remove exactly one custom-icon variant. (The MCP remove_icon_from_collection tool deliberately defaults the other way: entry-precise.)",
   createProProjectKitExport:
     "Queues an Icon Collection export job for one or more supported export formats.",
   getProProjectKitExport:
@@ -110,6 +110,7 @@ const sampleProjectKit = {
   framework: "react-ts",
   colorPolicy: "currentColor",
   namingPolicy: "pascal",
+  styledWith: null,
   iconsCount: 3,
   showUrl: "https://svgicons.com/project-kits/123",
   updatedAt: "2026-05-10T12:00:00+00:00",
@@ -118,11 +119,14 @@ const sampleProjectKit = {
 
 const sampleProjectKitIcon = {
   id: 33716,
+  entryId: 901,
   icon_set_id: 10,
   name: "arrow-circle-up-fill",
   width: 24,
   height: 24,
   body: '<path d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"/>',
+  customEditId: null,
+  customName: null,
   iconSet: {
     id: 10,
     name: "Pro REST Icons",
@@ -132,8 +136,17 @@ const sampleProjectKitIcon = {
   },
 };
 
+const sampleProjectKitCustomIcon = {
+  ...sampleProjectKitIcon,
+  entryId: 902,
+  body: '<path fill="#2563eb" d="M12 4l7 7-1.4 1.4L13 7.8V20h-2V7.8l-4.6 4.6L5 11z"/>',
+  customEditId: 77,
+  customName: "brand-blue",
+};
+
 const sampleProjectKitDetail = {
   ...sampleProjectKit,
+  hasCustomIcons: true,
   licenseSummary: [
     {
       license: "MIT",
@@ -157,7 +170,7 @@ const sampleProjectKitDetail = {
 };
 
 const sampleProjectKitIconsPage = {
-  data: [sampleProjectKitIcon],
+  data: [sampleProjectKitIcon, sampleProjectKitCustomIcon],
   current_page: 1,
   first_page_url: "https://svgicons.com/api/pro/project-kits/123?page=1",
   from: 1,
@@ -184,8 +197,8 @@ const sampleProjectKitIconsPage = {
   path: "https://svgicons.com/api/pro/project-kits/123",
   per_page: 100,
   prev_page_url: null,
-  to: 1,
-  total: 1,
+  to: 2,
+  total: 2,
 };
 
 const sampleExport = {
@@ -327,6 +340,8 @@ function polishSpec(source) {
   }
   spec.paths = paths;
 
+  patchLiveContractDeltas(spec);
+
   for (const [path, pathItem] of Object.entries(spec.paths)) {
     for (const [method, operation] of Object.entries(pathItem)) {
       if (!httpMethods.has(method)) {
@@ -346,6 +361,70 @@ function polishSpec(source) {
   refineResponses(spec.components.responses);
 
   return spec;
+}
+
+// The website source file (public/openapi/pro-api.json, info.version 2026-05-10)
+// predates two live contract additions. Patch them here so the public YAML stays
+// accurate; drop each patch once the website source is regenerated with it.
+function patchLiveContractDeltas(spec) {
+  // Every live kit summary now carries styledWith (the style name when the
+  // collection was built by applying a style).
+  const summary = spec.components?.schemas?.ProjectKitSummary;
+  if (summary?.properties && !summary.properties.styledWith) {
+    summary.properties.styledWith = {
+      type: ["string", "null"],
+      description: "The style name when the collection was built by applying a style.",
+    };
+  }
+
+  const removeIcon = spec.paths["/api/pro/project-kits/{projectKit}/icons/{icon}"]?.delete;
+
+  if (removeIcon) {
+    removeIcon.parameters = [
+      ...(removeIcon.parameters ?? []),
+      {
+        name: "all_variants",
+        in: "query",
+        required: false,
+        schema: { type: "boolean", default: true },
+        description:
+          "Defaults to true for backward compatibility: removes every entry of the icon — the plain entry plus any custom-icon variants. Pass false to remove only the plain entry and keep custom-icon variants. Ignored when edit_id is provided.",
+      },
+      {
+        name: "edit_id",
+        in: "query",
+        required: false,
+        schema: { type: "integer", minimum: 1 },
+        description:
+          "Remove exactly one custom-icon variant: the entry whose Icon Studio edit id matches. Entry-precise — the plain entry and other variants survive. The edit must belong to the authenticated account, otherwise the request is a 404.",
+      },
+    ];
+  }
+
+  const removeData = spec.components?.schemas?.RemoveIconResponse?.properties?.data;
+  if (removeData?.properties) {
+    removeData.properties.allVariants = {
+      type: "boolean",
+      description: "Whether the removal applied to every entry of the icon.",
+    };
+    removeData.properties.editId = {
+      type: ["integer", "null"],
+      description: "The Icon Studio edit id when edit_id targeted one custom-icon variant.",
+    };
+  }
+
+  const detailData = spec.components?.schemas?.ProjectKitDetailResponse?.properties?.data;
+  if (Array.isArray(detailData?.allOf)) {
+    detailData.allOf.push({
+      type: "object",
+      properties: {
+        hasCustomIcons: {
+          type: "boolean",
+          description: "Whether any entry in the collection is a custom-icon variant.",
+        },
+      },
+    });
+  }
 }
 
 function refineSchemas(schemas) {
@@ -412,14 +491,31 @@ function refineSchemas(schemas) {
 
   schemas.ProjectKitIcon = {
     type: "object",
-    required: ["id", "icon_set_id", "name", "width", "height", "body", "iconSet"],
+    description:
+      "One collection entry. An icon can appear as a plain entry plus custom-icon variants; entryId identifies the entry row. Custom-icon entries carry customEditId, customName, and their customized SVG snapshot as the body.",
+    required: ["id", "entryId", "icon_set_id", "name", "width", "height", "body", "iconSet"],
     properties: {
       id: { type: "integer" },
+      entryId: {
+        type: ["integer", "null"],
+        description: "The entry row id, used for entry-level operations such as reordering.",
+      },
       icon_set_id: { type: ["integer", "null"] },
       name: { type: "string" },
       width: { type: "integer" },
       height: { type: "integer" },
-      body: { type: "string" },
+      body: {
+        type: "string",
+        description: "SVG body markup. For custom-icon entries this is the customized rendered snapshot, not the catalog body.",
+      },
+      customEditId: {
+        type: ["integer", "null"],
+        description: "The Icon Studio edit id when the entry is a custom-icon variant.",
+      },
+      customName: {
+        type: ["string", "null"],
+        description: "The custom icon's name when the entry is a custom-icon variant.",
+      },
       iconSet: {
         type: ["object", "null"],
         properties: {
@@ -594,6 +690,27 @@ function addOperationExamples(path, method, operation) {
 
   if (path === "/api/pro/project-kits/{projectKit}/icons/bulk" && method === "post") {
     setJsonRequestExample(operation, "bulkAddIcons", { icon_ids: [33716, 33717, 33718] });
+  }
+
+  if (path === "/api/pro/project-kits/{projectKit}/icons/{icon}" && method === "delete") {
+    setJsonResponseExample(operation, "200", "removedAllVariants", {
+      data: {
+        kit: sampleProjectKit,
+        iconId: 33716,
+        removed: true,
+        allVariants: true,
+        editId: null,
+      },
+    });
+    setJsonResponseExample(operation, "200", "removedOneCustomVariant", {
+      data: {
+        kit: sampleProjectKit,
+        iconId: 33716,
+        removed: true,
+        allVariants: false,
+        editId: 77,
+      },
+    });
   }
 
   if (path === "/api/pro/project-kits/{projectKit}/exports" && method === "post") {
