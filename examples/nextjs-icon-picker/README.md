@@ -68,7 +68,7 @@ Only those route handlers read `SVGICONS_API_TOKEN` and call Svg/icons. The brow
 
 This is a compact pattern example, not a full production app. It does not include persistence, debounced search, virtualization, or production auth around the local route handlers.
 
-The SDK package is local in this repository. After npm publication, install it with:
+This example keeps its repository-local SDK setup. The SDK is also published on npm (version 0.1.0 checked on 17 October 2026). For a separate application, install it as shown below; review imports and dependency declarations before adapting this example. No migration to the npm dependency is made here:
 
 ```bash
 npm install @svgicons-com/api-client

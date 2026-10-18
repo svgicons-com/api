@@ -18,7 +18,7 @@ The live REST API is mounted at `https://svgicons.com/api/pro`. It uses scoped P
 https://svgicons.com/openapi/pro-api.json
 ```
 
-This repo keeps the API-repo OpenAPI source at [openapi/svgicons.openapi.yaml](openapi/svgicons.openapi.yaml). The TypeScript SDK package source lives in [packages/js](packages/js/) and should be treated as alpha until it is published to npm.
+This repo keeps the API-repo OpenAPI source at [openapi/svgicons.openapi.yaml](openapi/svgicons.openapi.yaml). The TypeScript SDK package source lives in [packages/js](packages/js/) and remains labelled alpha in this repository. The package is available on npm as `@svgicons-com/api-client`; publication alone does not establish stable-release maturity.
 
 Recent contract additions documented by the spec:
 
@@ -40,9 +40,9 @@ The only currently unauthenticated `/api/pro` endpoint in the OpenAPI source is 
 
 ## Release Status
 
-This repository documents the live svgicons.com Pro API. The SDK source is available in this repo, but the npm package has not been published yet.
+This repository documents the live svgicons.com Pro API. The SDK source is available in this repo and the package is published on npm.
 
-- SDK npm publication: pending package review and release approval.
+- SDK npm release checked on 17 October 2026: `@svgicons-com/api-client@0.1.0`.
 - Live REST API: `/api/pro`.
 - Planned REST API: `/api/v1`, not live.
 - MCP: separate JSON-RPC over `/mcp`.
@@ -116,7 +116,7 @@ curl "https://svgicons.com/api/pro/project-kits/123/exports" \
 
 The local workspace package is [packages/js](packages/js/) and is named `@svgicons-com/api-client`. It covers the live `/api/pro` REST operations only.
 
-Install from npm after the package is published:
+Install the published npm package (version 0.1.0 was current on 17 October 2026):
 
 ```bash
 npm install @svgicons-com/api-client
@@ -167,7 +167,7 @@ All core examples use live svgicons.com Pro API behavior under `/api/pro`. They 
 - [AI coding MCP workflow](examples/ai-coding-mcp-workflow/) - REST helper plus MCP workflow notes; MCP remains separate JSON-RPC over `/mcp`.
 - [Framework export workflow](examples/framework-export-workflow/) - create a Project Kit through the API and use the existing CLI for framework-oriented export workflows.
 
-The advanced examples are templates and scripts. They do not imply the SDK is published to npm.
+The advanced examples are templates and scripts. Their repository-local SDK setup is separate from npm availability; publication does not validate their authenticated workflows.
 
 ## Recipes
 
@@ -185,7 +185,7 @@ Start with the [recipes index](recipes/) for task-focused guides. Current recipe
 - [Use Svg/icons with MCP](recipes/use-svgicons-with-mcp.md) - keep REST helpers and hosted MCP JSON-RPC workflows separate; use the MCP repo for setup guides, prompts, examples, and client configs.
 - [Use Svg/icons in CI](recipes/use-svgicons-in-ci.md) - run team-defined provenance checks in CI.
 
-Recipes use live `/api/pro` behavior unless they explicitly describe a separate MCP or CLI workflow. They do not imply npm publication.
+Recipes use live `/api/pro` behavior unless they explicitly describe a separate MCP or CLI workflow. Public metadata searches through MCP or the CLI do not make these Pro REST recipes anonymous.
 
 Use the CLI for local lockfiles, license checks, scanner workflows, and collection exports:
 

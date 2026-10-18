@@ -56,7 +56,7 @@ Results: 10
 
 Keep `SVGICONS_API_TOKEN` server-side. This example is for Node.js scripts, CI jobs, and backend tooling. Do not copy this token into browser JavaScript.
 
-The SDK is local in this repository. After the package is published, install with:
+This example keeps its repository-local SDK setup. The SDK is also published on npm (version 0.1.0 checked on 17 October 2026). For a separate application, install it as shown below; review imports and dependency declarations before adapting this example. No migration to the npm dependency is made here:
 
 ```bash
 npm install @svgicons-com/api-client

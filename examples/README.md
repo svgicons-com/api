@@ -36,9 +36,9 @@ The SDK package is local in this repository:
 ../packages/js
 ```
 
-Examples either import the built local SDK directly or use a local file dependency. They do not assume `@svgicons-com/api-client` has been published to npm.
+Examples either import the built local SDK directly or use a local file dependency. This setup remains valid even though `@svgicons-com/api-client` is published on npm (version 0.1.0 checked on 17 October 2026).
 
-After npm publication, examples can be adapted to:
+For a separate application, the npm installation is below. Adapting a repository example may also require changing its imports or dependency specification; installing the package alone does not rewrite those files:
 
 ```bash
 npm install @svgicons-com/api-client
